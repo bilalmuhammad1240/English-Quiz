@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: IN, ON ou AT? 🤔</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --in-color: #e53935;
+    --on-color: #2e7d32;
+    --at-color: #1565c0;
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 0 0 60px;
+    background-image: radial-gradient(circle at 20% 20%, #dde8ff 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, #ffe0e0 0%, transparent 50%);
+  }
+  header {
+    background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #3949ab 100%);
+    color: white;
+    text-align: center;
+    padding: 36px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  header h1 { font-family:'Fredoka One',cursive; font-size:clamp(2rem,6vw,3.2rem); letter-spacing:1px; position:relative; }
+  header p { font-size:1.05rem; opacity:.88; margin-top:8px; position:relative; }
+  .badges { display:flex; justify-content:center; gap:12px; margin-top:18px; flex-wrap:wrap; position:relative; }
+  .badge { font-family:'Fredoka One',cursive; font-size:1.3rem; padding:6px 22px; border-radius:30px; }
+  .badge.in { background:var(--in-color); color:#fff; }
+  .badge.on { background:var(--on-color); color:#fff; }
+  .badge.at { background:var(--at-color); color:#fff; }
+  .round-info { background:rgba(255,255,255,0.15); border-radius:12px; padding:8px 20px; display:inline-block; margin-top:14px; font-size:.9rem; font-weight:700; position:relative; }
+
+  .progress-wrap { max-width:680px; margin:28px auto 0; padding:0 20px; }
+  .progress-bar-outer { background:#dde4f5; border-radius:99px; height:12px; overflow:hidden; }
+  .progress-bar-inner { height:100%; background:linear-gradient(90deg,#3949ab,#e53935); border-radius:99px; transition:width .5s ease; width:0%; }
+  .progress-label { font-size:.85rem; color:#5c6bc0; font-weight:700; text-align:right; margin-top:5px; }
+
+  .quiz-area { max-width:680px; margin:32px auto 0; padding:0 16px; }
+  .question-card {
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:32px 28px 26px; margin-bottom:22px; border-left:6px solid #c5cae9;
+    transition:border-color .3s; animation:slideIn .35s ease;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  .question-card.correct { border-left-color:#43a047; background:#f1fff3; }
+  .question-card.wrong   { border-left-color:#e53935; background:#fff3f3; }
+  .question-number { font-size:.78rem; font-weight:800; color:#9fa8da; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px; }
+  .question-text { font-size:1.22rem; font-weight:700; color:#1a237e; line-height:1.5; margin-bottom:20px; }
+  .blank {
+    display:inline-block; background:#e8eaf6; border-bottom:3px solid #5c6bc0;
+    color:#3949ab; min-width:60px; text-align:center; padding:2px 8px;
+    border-radius:6px; font-style:italic; font-weight:800; transition:background .3s,color .3s;
+  }
+  .options { display:flex; gap:12px; flex-wrap:wrap; }
+  .opt-btn {
+    font-family:'Fredoka One',cursive; font-size:1.15rem; padding:10px 30px;
+    border:2.5px solid #c5cae9; border-radius:50px; cursor:pointer; background:white;
+    color:#3949ab; transition:all .18s; letter-spacing:1px;
+  }
+  .opt-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 4px 14px rgba(57,73,171,.15); }
+  .opt-btn.in { border-color:var(--in-color); color:var(--in-color); }
+  .opt-btn.on { border-color:var(--on-color); color:var(--on-color); }
+  .opt-btn.at { border-color:var(--at-color); color:var(--at-color); }
+  .opt-btn.selected-correct { background:#43a047; color:white; border-color:#43a047; }
+  .opt-btn.selected-wrong   { background:#e53935; color:white; border-color:#e53935; }
+  .opt-btn.reveal-correct   { background:#a5d6a7; border-color:#43a047; color:#1b5e20; }
+  .opt-btn:disabled { cursor:default; }
+  .feedback { margin-top:14px; font-size:.95rem; font-weight:700; border-radius:10px; padding:10px 16px; display:none; }
+  .feedback.show { display:block; animation:fadeIn .25s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .feedback.correct { background:#e8f5e9; color:#2e7d32; }
+  .feedback.wrong   { background:#ffebee; color:#c62828; }
+
+  #result-screen { display:none; max-width:680px; margin:40px auto; padding:0 16px; text-align:center; animation:slideIn .5s ease; }
+  .result-card { background:white; border-radius:24px; box-shadow:0 12px 48px rgba(57,73,171,.13); padding:48px 36px; }
+  .result-emoji { font-size:4.5rem; margin-bottom:12px; }
+  .result-title { font-family:'Fredoka One',cursive; font-size:2.2rem; color:#1a237e; margin-bottom:8px; }
+  .result-score { font-size:3.8rem; font-weight:800; color:#3949ab; margin:16px 0 4px; }
+  .result-sub { color:#78909c; font-size:1rem; margin-bottom:28px; }
+  .result-msg { background:#f3f4ff; border-radius:14px; padding:18px 22px; font-size:1.05rem; font-weight:600; color:#3949ab; margin-bottom:28px; line-height:1.6; }
+  .bars { display:flex; justify-content:center; gap:28px; margin-bottom:32px; flex-wrap:wrap; }
+  .bar-item { text-align:center; }
+  .bar-label { font-family:'Fredoka One',cursive; font-size:1.1rem; margin-bottom:6px; }
+  .bar-label.in { color:var(--in-color); } .bar-label.on { color:var(--on-color); } .bar-label.at { color:var(--at-color); }
+  .bar-val { font-size:1.6rem; font-weight:800; color:#1a237e; }
+  .btn-restart {
+    font-family:'Fredoka One',cursive; font-size:1.2rem; padding:14px 40px;
+    background:linear-gradient(135deg,#3949ab,#1565c0); color:white; border:none;
+    border-radius:50px; cursor:pointer; transition:transform .15s,box-shadow .15s;
+    box-shadow:0 4px 18px rgba(57,73,171,.3); letter-spacing:1px;
+  }
+  .btn-restart:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(57,73,171,.38); }
+  .whatsapp-tip { margin-top:28px; font-size:.88rem; color:#90a4ae; font-weight:600; }
+  .bank-info { margin-top:12px; font-size:.82rem; color:#b0bec5; }
+  @media(max-width:500px){
+    .question-card{padding:22px 16px 18px;} .question-text{font-size:1.05rem;} .opt-btn{font-size:1rem;padding:9px 22px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 IN, ON ou AT?</h1>
+  <p>Teste seus conhecimentos sobre preposições em inglês!</p>
+  <div class="badges">
+    <span class="badge in">IN</span>
+    <span class="badge on">ON</span>
+    <span class="badge at">AT</span>
+  </div>
+  <div class="round-info" id="round-info">Rodada 1 · 15 perguntas aleatórias</div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+  <div class="progress-label" id="progress-label">0 / 15 respondidas</div>
+</div>
+
+<div class="quiz-area" id="quiz-area"></div>
+<div id="result-screen"></div>
+
+<script>
+// ─── BANCO DE QUESTÕES (60 perguntas) ───────────────────────────────────────
+const BANK = [
+  // ── IN ──
+  { s:"She lives ___ the city.", a:"IN",  h:"IN é usado com lugares fechados/amplos: cidade, país, bairro." },
+  { s:"He was born ___ January.", a:"IN", h:"IN é usado com meses." },
+  { s:"They met ___ 2019.", a:"IN", h:"IN é usado com anos e décadas." },
+  { s:"I like to read ___ the morning.", a:"IN", h:"IN the morning / afternoon / evening — partes do dia." },
+  { s:"She works ___ a hospital.", a:"IN", h:"IN é usado para espaços internos/instituições." },
+  { s:"We live ___ Brazil.", a:"IN", h:"IN é usado com países e continentes." },
+  { s:"The keys are ___ my pocket.", a:"IN", h:"IN indica algo dentro de um espaço ou recipiente." },
+  { s:"I'll be ready ___ a few minutes.", a:"IN", h:"IN indica um período de tempo futuro." },
+  { s:"There's a mouse ___ the box.", a:"IN", h:"IN para interior de objetos/recipientes." },
+  { s:"He grew up ___ the 1990s.", a:"IN", h:"IN é usado com décadas." },
+  { s:"She is ___ the kitchen.", a:"IN", h:"IN para espaços/cômodos internos." },
+  { s:"We are ___ the middle of a meeting.", a:"IN", h:"IN the middle of — expressão fixa." },
+  { s:"She will graduate ___ June.", a:"IN", h:"IN é usado com meses." },
+  { s:"He is ___ the army.", a:"IN", h:"IN é usado com organizações e grupos." },
+  { s:"They live ___ a small village.", a:"IN", h:"IN para localidades: village, town, city, country." },
+  { s:"I saw it ___ the newspaper.", a:"IN", h:"IN the newspaper / magazine — publicações impressas." },
+  { s:"It happened ___ the past.", a:"IN", h:"IN the past / future — expressões temporais." },
+  { s:"She arrived ___ the afternoon.", a:"IN", h:"IN the afternoon — parte do dia." },
+  { s:"He works ___ an office.", a:"IN", h:"IN para espaços internos como salas e escritórios." },
+  { s:"The river is ___ the north of the country.", a:"IN", h:"IN the north/south/east/west — regiões geográficas." },
+
+  // ── ON ──
+  { s:"The meeting is ___ Monday.", a:"ON", h:"ON é usado com dias da semana." },
+  { s:"The book is ___ the table.", a:"ON", h:"ON para superfícies." },
+  { s:"We are traveling ___ the train.", a:"ON", h:"ON para transportes coletivos: bus, train, plane." },
+  { s:"There is a painting ___ the wall.", a:"ON", h:"ON para superfícies verticais." },
+  { s:"She is ___ the phone right now.", a:"ON", h:"ON the phone — expressão fixa." },
+  { s:"The cat is sleeping ___ the bed.", a:"ON", h:"ON para superfícies onde algo repousa." },
+  { s:"They go to church ___ Sundays.", a:"ON", h:"ON Sundays — dias da semana (plural incluso)." },
+  { s:"I saw it ___ TV.", a:"ON", h:"ON TV / on the radio — meios de comunicação." },
+  { s:"He is ___ the bus.", a:"ON", h:"ON para veículos de transporte coletivo." },
+  { s:"The exam is ___ Friday.", a:"ON", h:"ON é usado com dias específicos." },
+  { s:"She lives ___ Oak Street.", a:"ON", h:"ON é usado com ruas e avenidas." },
+  { s:"Put the bag ___ the floor.", a:"ON", h:"ON para superfícies como o chão." },
+  { s:"They performed ___ the stage.", a:"ON", h:"ON the stage — superfície elevada/palco." },
+  { s:"He is ___ the plane.", a:"ON", h:"ON para aviões e transportes coletivos." },
+  { s:"I read it ___ the internet.", a:"ON", h:"ON the internet / on social media — meios digitais." },
+  { s:"She plays guitar ___ weekends.", a:"ON", h:"ON weekends — expressão temporal com dia/período." },
+  { s:"The map is ___ the wall.", a:"ON", h:"ON para coisas fixadas em superfícies." },
+  { s:"We camped ___ the island.", a:"ON", h:"ON the island — ilhas usam ON." },
+  { s:"There are flowers ___ the carpet.", a:"ON", h:"ON para superfícies horizontais." },
+  { s:"He is ___ leave this week.", a:"ON", h:"ON leave / on vacation / on alert — expressões fixas." },
+
+  // ── AT ──
+  { s:"I'll see you ___ noon.", a:"AT", h:"AT para momentos específicos: noon, midnight, dawn, sunset." },
+  { s:"She is ___ home.", a:"AT", h:"AT home / at school / at work — locais de atividade." },
+  { s:"We met ___ the airport.", a:"AT", h:"AT para pontos/locais específicos." },
+  { s:"The concert starts ___ 8 o'clock.", a:"AT", h:"AT + hora específica." },
+  { s:"He knocked ___ the door.", a:"AT", h:"AT the door — ponto específico." },
+  { s:"She is studying ___ university.", a:"AT", h:"AT university/school/work — instituições como ponto de atividade." },
+  { s:"They arrived ___ the station.", a:"AT", h:"AT para estações e pontos de chegada." },
+  { s:"I'll meet you ___ the entrance.", a:"AT", h:"AT para pontos de referência e encontro." },
+  { s:"He woke up ___ dawn.", a:"AT", h:"AT dawn / at dusk / at sunset — momentos específicos do dia." },
+  { s:"She smiled ___ me.", a:"AT", h:"AT em direção a alguém: smile at, look at, shout at." },
+  { s:"The kids are ___ school.", a:"AT", h:"AT school — local de atividade." },
+  { s:"We had lunch ___ the restaurant.", a:"AT", h:"AT para locais vistos como pontos específicos." },
+  { s:"Turn left ___ the traffic light.", a:"AT", h:"AT para pontos de referência em direções." },
+  { s:"He is very good ___ chess.", a:"AT", h:"Good at / bad at — expressão fixa de habilidade." },
+  { s:"She looked ___ the stars.", a:"AT", h:"Look at — expressão fixa de direção do olhar." },
+  { s:"I was surprised ___ his answer.", a:"AT", h:"Surprised at/by — expressão de reação." },
+  { s:"The children are ___ the park.", a:"AT", h:"AT para locais específicos vistos como ponto." },
+  { s:"She works ___ night.", a:"AT", h:"AT night — expressão fixa (diferente de in the morning)." },
+  { s:"They will meet ___ the party.", a:"AT", h:"AT the party / at the event — eventos e ocasiões." },
+  { s:"He bought tickets ___ the counter.", a:"AT", h:"AT the counter/desk/door — pontos específicos de serviço." },
+];
+
+const QUESTIONS_PER_ROUND = 15;
+let round = 1;
+let questions = [];
+let answered = 0;
+let score = 0;
+let stats = {};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickQuestions() {
+  // Garante distribuição balanceada: pelo menos 4 de cada tipo
+  const byType = { IN: shuffle(BANK.filter(q=>q.a==='IN')), ON: shuffle(BANK.filter(q=>q.a==='ON')), AT: shuffle(BANK.filter(q=>q.a==='AT')) };
+  let picked = [...byType.IN.slice(0,5), ...byType.ON.slice(0,5), ...byType.AT.slice(0,5)];
+  return shuffle(picked);
+}
+
+function initStats() {
+  stats = { IN:{correct:0,total:0}, ON:{correct:0,total:0}, AT:{correct:0,total:0} };
+  questions.forEach(q => stats[q.a].total++);
+}
+
+function buildQuiz() {
+  questions = pickQuestions();
+  answered = 0; score = 0;
+  initStats();
+
+  document.getElementById('round-info').textContent = `Rodada ${round} · ${QUESTIONS_PER_ROUND} perguntas aleatórias`;
+  document.getElementById('quiz-area').style.display = 'block';
+  document.querySelector('.progress-wrap').style.display = 'block';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('result-screen').innerHTML = '';
+
+  const area = document.getElementById('quiz-area');
+  area.innerHTML = '';
+
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${i}`;
+
+    const display = q.s.replace(/___/g, `<span class="blank" id="blank-${i}">___</span>`);
+    card.innerHTML = `
+      <div class="question-number">Questão ${i+1} de ${QUESTIONS_PER_ROUND}</div>
+      <div class="question-text">${display}</div>
+      <div class="options">
+        <button class="opt-btn in" onclick="answer(${i},'IN')">IN</button>
+        <button class="opt-btn on" onclick="answer(${i},'ON')">ON</button>
+        <button class="opt-btn at" onclick="answer(${i},'AT')">AT</button>
+      </div>
+      <div class="feedback" id="fb-${i}"></div>
+    `;
+    area.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function answer(i, chosen) {
+  const q = questions[i];
+  const card = document.getElementById(`card-${i}`);
+  const blank = document.getElementById(`blank-${i}`);
+  const fb    = document.getElementById(`fb-${i}`);
+  const btns  = card.querySelectorAll('.opt-btn');
+
+  btns.forEach(b => b.disabled = true);
+
+  const ok = chosen === q.a;
+  if (ok) {
+    score++;
+    stats[q.a].correct++;
+    card.classList.add('correct');
+    fb.className = 'feedback show correct';
+    fb.textContent = `✅ Correto! ${q.h}`;
+    blank.textContent = q.a;
+    blank.style.background = '#a5d6a7';
+    blank.style.color = '#1b5e20';
+    btns.forEach(b => { if (b.textContent === chosen) b.classList.add('selected-correct'); });
+  } else {
+    card.classList.add('wrong');
+    fb.className = 'feedback show wrong';
+    fb.textContent = `❌ Errado! A resposta correta é "${q.a}". ${q.h}`;
+    blank.textContent = q.a;
+    blank.style.background = '#ffcdd2';
+    blank.style.color = '#b71c1c';
+    btns.forEach(b => {
+      if (b.textContent === chosen) b.classList.add('selected-wrong');
+      if (b.textContent === q.a)    b.classList.add('reveal-correct');
+    });
+  }
+
+  answered++;
+  updateProgress();
+  if (answered === QUESTIONS_PER_ROUND) setTimeout(showResult, 1200);
+}
+
+function updateProgress() {
+  const pct = (answered / QUESTIONS_PER_ROUND) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${answered} / ${QUESTIONS_PER_ROUND} respondidas`;
+}
+
+function showResult() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+
+  const pct = Math.round((score / QUESTIONS_PER_ROUND) * 100);
+  let emoji = '😅', title = 'Continue praticando!';
+  let msg = 'Não desanime! Revise os exemplos de IN, ON e AT e tente novamente. A prática leva à perfeição! 💪';
+  if (pct >= 90) { emoji='🏆'; title='Arrasou demais!'; msg='Parabéns! Você domina o uso de IN, ON e AT. Compartilha esse resultado no grupo! 🎉'; }
+  else if (pct >= 70) { emoji='🌟'; title='Muito bem!'; msg='Ótimo resultado! Preste atenção nos que errou e você vai dominar tudo! 😎'; }
+  else if (pct >= 50) { emoji='📖'; title='Bom esforço!'; msg='Metade certa! Revise as regras e tente de novo — você vai melhorar muito! 🚀'; }
+
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'block';
+  rs.innerHTML = `
+    <div class="result-card">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-title">${title}</div>
+      <div class="result-score">${score}/${QUESTIONS_PER_ROUND}</div>
+      <div class="result-sub">${pct}% de aproveitamento · Rodada ${round}</div>
+      <div class="result-msg">${msg}</div>
+      <div class="bars">
+        <div class="bar-item"><div class="bar-label in">IN</div><div class="bar-val">${stats.IN.correct}/${stats.IN.total}</div></div>
+        <div class="bar-item"><div class="bar-label on">ON</div><div class="bar-val">${stats.ON.correct}/${stats.ON.total}</div></div>
+        <div class="bar-item"><div class="bar-label at">AT</div><div class="bar-val">${stats.AT.correct}/${stats.AT.total}</div></div>
+      </div>
+      <button class="btn-restart" onclick="restart()">🔄 Nova Rodada</button>
+      <div class="whatsapp-tip">📲 Compartilhe seu resultado no grupo do WhatsApp!</div>
+      <div class="bank-info">Banco com ${BANK.length} perguntas · Perguntas novas a cada rodada!</div>
+    </div>
+  `;
+  rs.scrollIntoView({ behavior:'smooth' });
+}
+
+function restart() {
+  round++;
+  window.scrollTo({ top:0, behavior:'smooth' });
+  buildQuiz();
+}
+
+// START
+buildQuiz();
+</script>
+</body>
+</html>
